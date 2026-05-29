@@ -5,20 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miyuu Power - Standard Edition</title>
     <style>
-        /* --- 全体設定: スクロール禁止 --- */
         html, body {
             margin: 0;
             padding: 0;
             height: 100vh;
             width: 100vw;
-            overflow: hidden; 
-            background-color: #f7f4ed; 
+            overflow: hidden;
+            background-color: #f7f4ed;
             font-family: 'Playfair Display', 'Georgia', serif;
             color: #333;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* --- 固定背景の太陽 --- */
         .background-sun {
             position: fixed;
             top: 50%;
@@ -33,13 +31,12 @@
             filter: blur(10px);
         }
 
-        /* --- メインコンテナ: 画面内に収めるための設定 --- */
         .container {
             display: flex;
             flex-direction: column;
             height: 100vh;
             width: 100%;
-            justify-content: space-around; /* 要素を均等に配置 */
+            justify-content: space-around;
             align-items: center;
             position: relative;
             z-index: 1;
@@ -47,12 +44,11 @@
             box-sizing: border-box;
         }
 
-        /* --- トップ画像エリア: 枠に収まるサイズに制限 --- */
         .top-image-container {
             position: relative;
-            width: 85%; /* 画面の幅の85%に制限 */
+            width: 85%;
             max-width: 400px;
-            max-height: 40vh; /* 画面の高さの40%を超えないように制限 */
+            max-height: 40vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -60,16 +56,15 @@
 
         .top-image {
             max-width: 100%;
-            max-height: 40vh; /* 高さを制限して枠に収める */
+            max-height: 40vh;
             width: auto;
             height: auto;
             display: block;
             border-radius: 8px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            object-fit: contain; /* 枠内で比率を保って収める */
+            object-fit: contain;
         }
 
-        /* --- タイトル: Miyuu Power (セリフ体) --- */
         .title {
             position: absolute;
             bottom: -15px;
@@ -79,7 +74,7 @@
             font-size: clamp(1.8rem, 8vw, 3rem);
             font-weight: bold;
             text-align: center;
-            text-shadow: 
+            text-shadow:
                 0 0 10px rgba(255, 105, 180, 0.6),
                 0 0 20px rgba(255, 105, 180, 0.3);
             font-family: 'Playfair Display', serif;
@@ -88,7 +83,6 @@
             z-index: 5;
         }
 
-        /* --- ボタンエリア --- */
         .button-group {
             display: flex;
             flex-direction: column;
@@ -122,7 +116,6 @@
             50% { transform: scale(1.02); }
         }
 
-        /* --- フッター --- */
         footer {
             font-size: 0.8rem;
             color: #b01a1a;
@@ -130,33 +123,152 @@
             padding-bottom: 5px;
         }
 
-        /* --- 画像ビューア (修正後) --- */
+        /* ===== 音楽コントロールパネル (左上) ===== */
+        .audio-controls {
+            position: fixed;
+            top: 18px;
+            left: 18px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* メイン再生ボタン：きらきら紫 */
+        .play-btn {
+            position: relative;
+            background: linear-gradient(135deg, #b44fff 0%, #7b2fff 50%, #d966ff 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: 'Playfair Display', serif;
+            cursor: pointer;
+            box-shadow:
+                0 0 12px rgba(180, 79, 255, 0.7),
+                0 0 28px rgba(180, 79, 255, 0.4),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            transition: all 0.2s ease;
+            overflow: hidden;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+
+        .play-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 40%;
+            height: 200%;
+            background: rgba(255,255,255,0.25);
+            transform: skewX(-20deg);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -60%; }
+            60% { left: 130%; }
+            100% { left: 130%; }
+        }
+
+        .play-btn:hover {
+            transform: scale(1.06);
+            box-shadow:
+                0 0 18px rgba(180, 79, 255, 0.9),
+                0 0 40px rgba(180, 79, 255, 0.5),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .play-btn:active { transform: scale(0.97); }
+
+        /* サブボタン共通 (ループ / 一時停止) */
+        .mini-btn {
+            background: linear-gradient(135deg, #c47aff 0%, #8b3dff 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 8px rgba(180, 79, 255, 0.5);
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            opacity: 0.85;
+        }
+
+        .mini-btn:hover {
+            transform: scale(1.12);
+            opacity: 1;
+            box-shadow: 0 0 14px rgba(180, 79, 255, 0.8);
+        }
+
+        .mini-btn.active {
+            background: linear-gradient(135deg, #ff69b4 0%, #e040fb 100%);
+            box-shadow: 0 0 14px rgba(255, 105, 180, 0.8);
+            opacity: 1;
+        }
+
+        /* ===== 浮かぶ音符 ===== */
+        .note {
+            position: fixed;
+            font-size: 1.5rem;
+            opacity: 0;
+            pointer-events: none; /* クリックの邪魔をしない */
+            z-index: 50;
+            animation: floatNote linear infinite;
+            user-select: none;
+        }
+
+        @keyframes floatNote {
+            0% {
+                opacity: 0;
+                transform: translateY(0) rotate(0deg) scale(0.8);
+            }
+            10% {
+                opacity: 0.45;
+            }
+            80% {
+                opacity: 0.35;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-90vh) rotate(30deg) scale(1.1);
+            }
+        }
+
+        /* ===== 画像ビューア ===== */
         #viewer {
-            display: none; /* 初期状態は非表示 */
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.96); /* 重なる形 */
+            background: rgba(0,0,0,0.96);
             z-index: 100;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
 
-        /* 手動で横スクロールできるコンテナ */
         .viewer-content {
             display: flex;
-            overflow-x: auto; /* 横スクロールを許可 */
+            overflow-x: auto;
             width: 100%;
             height: 85vh;
-            scroll-snap-type: x mandatory; /* 1枚ずつピタッと止める */
-            -webkit-overflow-scrolling: touch; /* iOSでのスムーズなスクロール */
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
         }
 
         .viewer-item {
-            flex: 0 0 100vw; /* 1画面に1画像 */
+            flex: 0 0 100vw;
             width: 100vw;
             height: 100%;
             scroll-snap-align: center;
@@ -178,7 +290,6 @@
             box-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
 
-        /* キャプション (自由に考えてみました) */
         .caption {
             margin-top: 25px;
             font-family: 'Playfair Display', serif;
@@ -189,12 +300,11 @@
             line-height: 1.4;
         }
 
-        /* 赤い「X」ボタン (左上) */
         .close-btn {
             position: absolute;
             top: 30px;
             left: 30px;
-            background: #c72c2c; /* 赤色 */
+            background: #c72c2c;
             color: white;
             border: none;
             font-size: 1.6rem;
@@ -210,7 +320,6 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.4);
         }
 
-        /* スクロールバー非表示 (ビューア内) */
         .viewer-content::-webkit-scrollbar { display: none; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
@@ -218,6 +327,16 @@
 <body>
 
     <div class="background-sun"></div>
+
+    <!-- ===== 音楽コントロール (左上) ===== -->
+    <div class="audio-controls">
+        <button class="play-btn" id="playBtn" onclick="togglePlay()">▶ Play</button>
+        <button class="mini-btn" id="loopBtn" title="ループ" onclick="toggleLoop()">🔁</button>
+        <button class="mini-btn" id="pauseBtn" title="一時停止" onclick="togglePause()">⏸</button>
+    </div>
+
+    <!-- Audio 要素 -->
+    <audio id="bgAudio" src="https://raw.githubusercontent.com/miyuvinny/audio/main/monkey.mp3" preload="auto"></audio>
 
     <div class="container">
         <div class="top-image-container">
@@ -236,7 +355,6 @@
 
     <div id="viewer">
         <button class="close-btn" onclick="closeViewer()">X</button>
-        
         <div class="viewer-content">
             <div class="viewer-item">
                 <img src="https://raw.githubusercontent.com/miyuvinny/photos/main/pic1.jpg.jpg" alt="Pic1">
@@ -254,13 +372,129 @@
     </div>
 
     <script>
-        // ビューアを開く関数
-        function openViewer() {
-            document.getElementById('viewer').style.display = 'flex';
+        const audio = document.getElementById('bgAudio');
+        const playBtn = document.getElementById('playBtn');
+        const loopBtn = document.getElementById('loopBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+
+        let isPlaying = false;
+        let isPaused = false;
+        let isLoop = false;
+        let noteInterval = null;
+
+        const NOTES = ['🎵','🎶','🎼','🎹','♪','♫'];
+
+        /* ===== 再生ボタン: クリックで再生 / もう一度クリックで最初からリセット ===== */
+        function togglePlay() {
+            if (isPlaying && !isPaused) {
+                // 再生中 → 最初からリセット
+                audio.pause();
+                audio.currentTime = 0;
+                isPlaying = false;
+                isPaused = false;
+                playBtn.textContent = '▶ Play';
+                stopNotes();
+            } else if (isPaused) {
+                // 一時停止中 → 最初からリセット
+                audio.currentTime = 0;
+                isPaused = false;
+                isPlaying = false;
+                playBtn.textContent = '▶ Play';
+                pauseBtn.classList.remove('active');
+                stopNotes();
+            } else {
+                // 停止中 → 再生開始
+                audio.currentTime = 0;
+                audio.loop = isLoop;
+                audio.play().catch(() => {});
+                isPlaying = true;
+                isPaused = false;
+                playBtn.textContent = '↺ Reset';
+                pauseBtn.classList.remove('active');
+                startNotes();
+            }
         }
-        // ビューアを閉じる関数
-        function closeViewer() {
-            document.getElementById('viewer').style.display = 'none';
-        }</script>
+
+        /* ===== ループボタン ===== */
+        function toggleLoop() {
+            isLoop = !isLoop;
+            audio.loop = isLoop;
+            loopBtn.classList.toggle('active', isLoop);
+        }
+
+        /* ===== 一時停止ボタン ===== */
+        function togglePause() {
+            if (!isPlaying) return; // 再生していなければ何もしない
+
+            if (!isPaused) {
+                audio.pause();
+                isPaused = true;
+                pauseBtn.classList.add('active');
+                stopNotes();
+            } else {
+                audio.play().catch(() => {});
+                isPaused = false;
+                pauseBtn.classList.remove('active');
+                startNotes();
+            }
+        }
+
+        /* ===== 音楽終了時 (ループOFFの場合) ===== */
+        audio.addEventListener('ended', () => {
+            if (!isLoop) {
+                isPlaying = false;
+                isPaused = false;
+                playBtn.textContent = '▶ Play';
+                stopNotes();
+            }
+        });
+
+        /* ===== 音符アニメーション ===== */
+        function spawnNote() {
+            const note = document.createElement('span');
+            note.className = 'note';
+            note.textContent = NOTES[Math.floor(Math.random() * NOTES.length)];
+
+            // ランダムな水平位置 (画面全体にばらまく)
+            const x = Math.random() * 95; // vw %
+            note.style.left = x + 'vw';
+            note.style.bottom = '-5vh';
+
+            // ランダムなアニメーション時間・遅延
+            const duration = 4 + Math.random() * 5; // 4〜9秒
+            note.style.animationDuration = duration + 's';
+            note.style.animationDelay = (Math.random() * 1.5) + 's';
+
+            // ランダムサイズ
+            const size = 1.1 + Math.random() * 1.2;
+            note.style.fontSize = size + 'rem';
+
+            document.body.appendChild(note);
+
+            // アニメーション終了後に削除
+            setTimeout(() => note.remove(), (duration + 2) * 1000);
+        }
+
+        function startNotes() {
+            if (noteInterval) return;
+            spawnNote();
+            noteInterval = setInterval(spawnNote, 700);
+        }
+
+        function stopNotes() {
+            clearInterval(noteInterval);
+            noteInterval = null;
+            // 残っている音符をゆっくりフェードアウト
+            document.querySelectorAll('.note').forEach(n => {
+                n.style.transition = 'opacity 1s';
+                n.style.opacity = '0';
+                setTimeout(() => n.remove(), 1000);
+            });
+        }
+
+        /* ===== 画像ビューア ===== */
+        function openViewer() { document.getElementById('viewer').style.display = 'flex'; }
+        function closeViewer() { document.getElementById('viewer').style.display = 'none'; }
+    </script>
 </body>
 </html>
